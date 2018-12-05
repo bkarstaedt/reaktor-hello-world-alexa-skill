@@ -1,0 +1,31 @@
+{
+  "name": "reaktor-hello-world-alexa-skill",
+  "version": "0.0.1",
+  "description": "TODO",
+  "main": "index.js",
+  "scripts": {
+    "downloadTle": "node -e 'require(\"./src/updateSatelliteTle\").testRetrieveSatelliteTle()'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bkarstaedt/reaktor-hello-world-alexa-skill.git"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "alexa",
+    "skill",
+    "reaktor",
+    "satellite"
+  ],
+  "author": "Bastian Karstaedt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bkarstaedt/reaktor-hello-world-alexa-skill/issues"
+  },
+  "homepage": "https://github.com/bkarstaedt/reaktor-hello-world-alexa-skill#readme",
+  "devDependencies": {
+    "aws-sam-local": "^0.2.11",
+    "tle": "^1.2.3"
+  }
+}
