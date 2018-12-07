@@ -4,7 +4,9 @@
   "description": "TODO",
   "main": "index.js",
   "scripts": {
-    "downloadTle": "node -e 'require(\"./src/updateSatelliteTle\").testRetrieveSatelliteTle()'"
+    "downloadTle": "node -e 'require(\"./src/updateSatelliteTle\").testRetrieveSatelliteTle()'",
+    "build": "webpack",
+    "build-minified": "webpack -p"
   },
   "repository": {
     "type": "git",
@@ -25,7 +27,10 @@
   },
   "homepage": "https://github.com/bkarstaedt/reaktor-hello-world-alexa-skill#readme",
   "devDependencies": {
-    "aws-sam-local": "^0.2.11",
-    "tle": "^1.2.3"
-  }
+    "aws-sdk": "^2.372.0",
+    "tle": "^1.2.3",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {}
 }

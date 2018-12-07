@@ -2,6 +2,8 @@
 
 const https = require('https');
 const TLE = require( 'tle' );
+const AWS = require('aws-sdk');
+const AWS_SSM = new AWS.SSM();
 
 const TLE_URL = "https://celestrak.com/NORAD/elements/tle-new.txt"
 const TLE_ID = "18096K" // Reaktor Hello World Satellite
@@ -11,58 +13,74 @@ const TLE_ID = "18096K" // Reaktor Hello World Satellite
  */
 exports.handler = async (event, context) => {
 
-    /*
-        TODO: store in data store
-    */
+    log('starting execution...');
 
     retrieveSatelliteTle(TLE_URL, TLE_ID)
-        .then( storeSatelliteTle ) // tle => console.log('####### TLE: ', tle) )
-        .catch( error => console.log('ERROR occurred: ', error.message) );
+        .then( setSatelliteTle )
+        .then( () => log( 'successfully set the new tle value' ) )
+        .catch( error => log('ERROR occurred: ', error.message) )
+        // .finally( () => log( 'PROMISE FINISHED' ) );
 
-    return "success!";
+    return 'finished execution...';
 }
 
 /**
  * Utility functions
  */
 
+const log = ( ...messages ) => {
+    console.log( ...messages );
+}
+
 const retrieveSatelliteTle = ( tleUrl, tleId ) => {
     return new Promise( (resolve, reject) => {
+            log('starting LTEs download...');
             https.get(tleUrl, (response) => {
 
                 if( response.statusCode !== 200 ){
-                    const reason = new Error( `HTTP ${response.statusCode} ${response.statusMessage}` );
-                    reject(reason);
+                    log( 'LTEs retrieving error', response );
+                    reject( Error( `HTTP ${response.statusCode} ${response.statusMessage}` ) );
+                } else {
+                    log( 'LTEs downloaded', response.statusMessage )
                 }
 
                 response.pipe( new TLE.Parser() )
                     .once( 'error', () => {
-                        console.error( error.stack ) && process.exit(1)
+                        log( 'LTE parsing error', error );
+                        reject( Error( error.stack ) )
                     })
                     .on( 'data', ( tle ) => {
                         if(tle.id == tleId){
-                            resolve(tle);
+                            log( 'LTE found', lte );
+                            resolve( tle );
                         }
-                    });
+                    })
+                    .once( 'finish', () => log('LTE parsing finished...') );
+            }).on('error', e => {
+                log( 'error on LTEs download', e.message);
+                reject( Error( e.message ) )
             });
         }
     );
 }
 
-const storeSatelliteTle = ( tle ) => {
-    return new Promise( (resolve, _reject) => {
-        console.log('Storing', tle.id)
-        resolve(tle);
+const setSatelliteTle = ( tle ) => {
+    return new Promise( (resolve, reject) => {
+        const params = {
+            Name: 'ReaktorHelloWorldTle', // TODO: refactor as ENV from sam-template.yml
+            Type: String,
+            Value: tle, // JSON.stringify()
+            Overwrite: true
+        };
+        // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SSM.html#putParameter-property
+        AWS_SSM.putParameter( params, ( error, data ) => {
+            if (error){
+                log( 'SSM error', error );
+                reject(Error( error.stack ));
+            } else{
+                log( 'SSM response', data );
+                resolve( data );
+            }
+        });
     });
-}
-
-/**
- * For testing...
- */
-
-module.exports.testRetrieveSatelliteTle = function() {
-    retrieveSatelliteTle(TLE_URL, TLE_ID)
-        .then( storeSatelliteTle )
-        .then( tle => console.log('TLE object for', TLE_ID, tle) )
-        .catch( error => console.log(error.message) );
 }

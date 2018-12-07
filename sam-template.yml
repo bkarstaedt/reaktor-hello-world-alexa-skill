@@ -3,10 +3,20 @@ Transform: AWS::Serverless-2016-10-31
 Description: A reaktor hello world alexa skill.
 Resources:
   UpdateSatelliteTleFunction:
-    Type: Schedule
+    Type: AWS::Serverless::Function
     Properties:
-      Schedule: rate(5 minutes)
       Handler: updateSatelliteTle.handler
       Runtime: nodejs8.10
-      CodeUri: ./src/
-  
+      CodeUri: ./build/updateSatelliteTle/
+    Events:
+      StartJob:
+        Type: Schedule
+        Properties:
+          Schedule: rate(6 hours)
+  SimpleParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: ReaktorHelloWorldTle
+      Description: 'Cache for Reaktor Hello World Satellite TLE in JSON'
+      Type: String
+      Value: '{}'
