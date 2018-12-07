@@ -6,7 +6,8 @@
   "scripts": {
     "downloadTle": "node -e 'require(\"./src/updateSatelliteTle\").testRetrieveSatelliteTle()'",
     "build": "webpack",
-    "build-minified": "webpack -p"
+    "build-minified": "webpack -p",
+    "local-updateSatelliteTleFunction": "npm run build && sam local invoke UpdateSatelliteTleFunction -t sam-template.yml --no-event",
   },
   "repository": {
     "type": "git",
