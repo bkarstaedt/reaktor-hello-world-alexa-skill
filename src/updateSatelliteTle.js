@@ -7,16 +7,17 @@ const TLE_URL = "https://celestrak.com/NORAD/elements/tle-new.txt"
 const TLE_ID = "18096K" // Reaktor Hello World Satellite
 
 /**
- * Main entry point.
+ * Main lambda entry point.
  */
-exports.handler = async function(event, context) {
+exports.handler = async (event, context) => {
 
     /*
-        - store in data store
+        TODO: store in data store
     */
 
-    let completeTle = retrieveSatelliteTle(TLE_URL, TLE_ID);
-
+    retrieveSatelliteTle(TLE_URL, TLE_ID)
+        .then( storeSatelliteTle ) // tle => console.log('####### TLE: ', tle) )
+        .catch( error => console.log('ERROR occurred: ', error.message) );
 
     return "success!";
 }
@@ -25,36 +26,43 @@ exports.handler = async function(event, context) {
  * Utility functions
  */
 
-function exit( error ) {
-    console.error( error.stack )
-    process.exit(1)
-}
+const retrieveSatelliteTle = ( tleUrl, tleId ) => {
+    return new Promise( (resolve, reject) => {
+            https.get(tleUrl, (response) => {
 
-
-function retrieveSatelliteTle(tleUrl, tleId) {
-
-    let satelliteLte = {};
-
-    https.get(tleUrl, (response) => {
-
-        if( response.statusCode !== 200 ){
-            new Error( `HTTP ${response.statusCode} ${response.statusMessage}` );
-        }
-
-        response.pipe( new TLE.Parser() )
-            .once( 'error', exit )
-            .on( 'data', ( tle ) => {
-                if(tle.id == TLE_ID){
-                    console.log( tle );
+                if( response.statusCode !== 200 ){
+                    const reason = new Error( `HTTP ${response.statusCode} ${response.statusMessage}` );
+                    reject(reason);
                 }
-            })
-            .once( 'finish', () => {
-                // console.log( 'Finished parsing all TLEs...' );
+
+                response.pipe( new TLE.Parser() )
+                    .once( 'error', () => {
+                        console.error( error.stack ) && process.exit(1)
+                    })
+                    .on( 'data', ( tle ) => {
+                        if(tle.id == tleId){
+                            resolve(tle);
+                        }
+                    });
             });
-    });
-    return satelliteLte;
+        }
+    );
 }
+
+const storeSatelliteTle = ( tle ) => {
+    return new Promise( (resolve, _reject) => {
+        console.log('Storing', tle.id)
+        resolve(tle);
+    });
+}
+
+/**
+ * For testing...
+ */
 
 module.exports.testRetrieveSatelliteTle = function() {
-    retrieveSatelliteTle(TLE_URL, TLE_ID);
+    retrieveSatelliteTle(TLE_URL, TLE_ID)
+        .then( storeSatelliteTle )
+        .then( tle => console.log('TLE object for', TLE_ID, tle) )
+        .catch( error => console.log(error.message) );
 }
