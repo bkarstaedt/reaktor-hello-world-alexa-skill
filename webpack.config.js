@@ -1,12 +1,15 @@
 const path = require("path");
 
 module.exports = {
-  entry: { updateSatelliteTle: "./src/updateSatelliteTle.js" },
+  entry: {
+    updateSatelliteTle: "./src/updateSatelliteTle.js",
+    retrieveCurrentSatelliteLocation: "./src/retrieveCurrentSatelliteLocation.js"
+  },
   module: {
     rules: [ ]
   },
   resolve: {
-    extensions: [".tsx", ".ts", ".js"]
+    extensions: [".js"]
   },
   target: 'node',
   externals: [

@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "downloadTle": "node -e 'require(\"./src/updateSatelliteTle\").testRetrieveSatelliteTle()'",
-    "build": "webpack",
+    "build": "webpack   --output-pathinfo  --output-source-map-filename test",
     "build-minified": "webpack -p",
-    "local-updateSatelliteTleFunction": "npm run build && sam local invoke UpdateSatelliteTleFunction -t sam-template.yml --no-event",
+    "wph": "webpack -h",
+    "local-updateSatelliteTleFunction": "npm run build && sam local invoke UpdateSatelliteTleFunction -t sam-template.yml --no-event"
   },
   "repository": {
     "type": "git",

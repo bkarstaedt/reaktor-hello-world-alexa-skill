@@ -13,6 +13,18 @@ Resources:
         Type: Schedule
         Properties:
           Schedule: rate(6 hours)
+  RetrieveCurrentSatelliteLocationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: retrieveCurrentSatelliteLocation.handler
+      Runtime: nodejs8.10
+      CodeUri: ./build/retrieveCurrentSatelliteLocation/
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /location
+            Method: GET
   SimpleParameter:
     Type: AWS::SSM::Parameter
     Properties:
